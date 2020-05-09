@@ -4,11 +4,20 @@ const express = require('express');
 const app = express();
 
 const qutil = require('./qutil.js')
+const multer = require('multer');
+const uploader = multer({ dest: 'surveys' })
 
-app.get('/questionnaires', asyncWrap(async (req, res) => {
+app.use(express.static('client', { extensions: ['html'] }))
+
+app.get('/questionnairess', asyncWrap(async (req, res) => {
     const content = await qutil.content();
     console.log();
     res.send(JSON.stringify(content));;
+}));
+
+app.post('/questionnaires', uploader.single('questionnaire'), express.json(), asyncWrap(async (req, res) => {
+    console.log('gottem');
+    res.send("Done");
 }));
 
 function asyncWrap(f) {
@@ -22,7 +31,6 @@ function asyncWrap(f) {
 app.listen(8080, async () => {
 
     await qutil.init();
-    await qutil.content();
 
     console.log('Listening on port 8080!');
 })
