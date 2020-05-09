@@ -1,0 +1,19 @@
+{
+  "name": "webprog",
+  "version": "0.0.1",
+  "description": "My cousework for Web Programming",
+  "main": "server.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pseudooo/WebProg.git"
+  },
+  "author": "pseudo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pseudooo/WebProg/issues"
+  },
+  "homepage": "https://github.com/Pseudooo/WebProg#readme"
+}
