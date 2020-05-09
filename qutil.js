@@ -7,18 +7,18 @@
 */
 
 const sqlite = require('sqlite');
-
-async function init() {
-    db = await sqlite.open({ filename: 'database.sqlite', verbose: true });
-    return db;
-}
+const sqlite3 = require('sqlite3');
 
 // Initialize connection to db
 let db;
-Promise.resolve(init()).then((x) => {
-    db = x;
-}, (e) => {
-    console.log('Failed to establish connection with db!');
-    console.log(e);
-})
+async function init() {
+    const _db = await sqlite.open({
+        filename: 'database.sqlite',
+        verbose: true,
+        driver: sqlite3.Database
+    });
+    await _db.migrate({ migrationsPath: './sqlite-migrations/' });
+    db = _db;
+}
 
+module.exports.init = init;
