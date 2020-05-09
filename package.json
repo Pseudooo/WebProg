@@ -15,5 +15,6 @@
   "bugs": {
     "url": "https://github.com/Pseudooo/WebProg/issues"
   },
-  "homepage": "https://github.com/Pseudooo/WebProg#readme"
+  "homepage": "https://github.com/Pseudooo/WebProg#readme",
+  "dependencies": {}
 }
