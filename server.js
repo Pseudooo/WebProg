@@ -4,11 +4,13 @@ const express = require('express');
 const qutil = require('./qutil.js')
 const multer = require('multer');
 const GoogleAuth = require('simple-google-openid');
+const path = require('path');
 
 const app = express();
-const uploader = multer({ dest: 'surveys' })
+const uploader = multer({ dest: 'questionnaires' });
 
-app.use(express.static('client', { extensions: ['html'] }))
+app.use(GoogleAuth("125277199265-qqbdra5bp7gt38cnaeqp7rqek9gaqefq.apps.googleusercontent.com"));
+app.use(express.static('client', { extensions: ['html'] }));
 
 /**
     Will serve to register all uploaded JSON questionnaires
@@ -16,9 +18,35 @@ app.use(express.static('client', { extensions: ['html'] }))
 */
 async function registerQuestionnaire(req, res) {
 
-    const fname = req.file.filename;
-    console.log(`File received: ${fname}`);
+    // TODO: Validate user is logged in
+    
+    console.log(`File received ~`);
+    console.log(`   - From: ${req.user.displayName}`);
+    console.log(`   - File: ${req.file.filename}`);
+    qutil.register(req.user.id, req.file.filename);
     res.send('Done!');
+
+}
+
+// Is actually serving a static file
+// Page then uses URL to request data
+async function answerSurvey(req, res) {
+    res.sendFile(path.join(__dirname + '/client/respond.html'));
+}
+
+async function getRecents(req, res) {
+    const response = await qutil.recent();
+    res.json(response);
+}
+
+async function getQuestionnaire(req, res) {
+
+    const questionnaire = await qutil.getQuestionnaire(req.params.id);
+    if(questionnaire === undefined){
+        res.status(404).send('Questionnaire not found');
+    }else {
+        res.json(questionnaire);
+    }
 
 }
 
@@ -30,7 +58,11 @@ function asyncWrap(f) {
   };
 }
 
-app.post('/questionnaires', uploader.single('questionnaire'),
+app.get('/answer/:id', express.json(), asyncWrap(answerSurvey));
+app.get('/api/get/:id', express.json(), asyncWrap(getQuestionnaire))
+app.get('/api/recents', asyncWrap(getRecents));
+
+app.post('/api/questionnaires', uploader.single('questionnaire'),
     express.json(), asyncWrap(registerQuestionnaire));
 
 // Start server

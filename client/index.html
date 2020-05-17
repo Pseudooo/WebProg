@@ -4,6 +4,9 @@
     <head>
         
         <title>Home</title>
+
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <meta name="google-signin-client_id" content="125277199265-qqbdra5bp7gt38cnaeqp7rqek9gaqefq.apps.googleusercontent.com">
     
         <script src="index.js"></script>
 
@@ -15,6 +18,10 @@
             <label id="questionnaire"><input id="select-file" type=file accept="application/JSON"></label>
             <input id=submit type=submit value=Send>
         </header>
+        <br><div class="g-signin2" data-onsuccess="onSignIn"></div>
+        <br>
+
+        <ol id="recents"></ol>
 
     </body>
 
