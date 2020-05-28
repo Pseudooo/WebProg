@@ -15,7 +15,7 @@ async function submit() {
     const res = await fetch('/api/questionnaires', {
         method: 'POST',
         body: payload,
-        headers: { 'Authorization': 'Bearer ' + token} 
+        headers: { 'Authorization' : `Bearer ${token}` } 
     });
 
     // TODO: Remove debug print

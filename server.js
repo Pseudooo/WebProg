@@ -18,8 +18,10 @@ app.use(express.static('client', { extensions: ['html'] }));
 */
 async function registerQuestionnaire(req, res) {
 
-    // TODO: Validate user is logged in
+    if(req.user === null) // User not logged in
+        res.status(401).send('Please log in!');
     
+    // Indicate uploaded survey
     console.log(`File received ~`);
     console.log(`   - From: ${req.user.displayName}`);
     console.log(`   - File: ${req.file.filename}`);
@@ -30,8 +32,16 @@ async function registerQuestionnaire(req, res) {
 
 // Is actually serving a static file
 // Page then uses URL to request data
-async function answerSurvey(req, res) {
+async function openQuestionnaire(req, res) {
     res.sendFile(path.join(__dirname + '/client/respond.html'));
+}
+
+async function giveResponse(req, res) {
+    const id = req.params.id;
+
+    await qutil.giveResponse(id, req.body);
+
+    res.send('Done!');
 }
 
 async function getRecents(req, res) {
@@ -58,7 +68,9 @@ function asyncWrap(f) {
   };
 }
 
-app.get('/answer/:id', express.json(), asyncWrap(answerSurvey));
+app.get('/answer/:id', express.json(), asyncWrap(openQuestionnaire));
+app.post('/answer/:id', express.json(), asyncWrap(giveResponse))
+
 app.get('/api/get/:id', express.json(), asyncWrap(getQuestionnaire))
 app.get('/api/recents', asyncWrap(getRecents));
 

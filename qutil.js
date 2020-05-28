@@ -10,7 +10,9 @@ const sqlite3 = require('sqlite3');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+const {v4: uuid} = require('uuid');
 const readFile = util.promisify(fs.readFile);
+
 
 // Initialize database
 let db;
@@ -45,7 +47,7 @@ async function register(user, filename) {
 
     // Make required modifications to db
     await db.run(`INSERT INTO Questionnaires VALUES (?, ?, ?, ?)`, qrecord);
-    await db.run(`CREATE TABLE res_${filename} ( ${fields.join(', ')} )`);
+    await db.run(`CREATE TABLE res_${filename} ( ${fields.join(',')} )`);
 
 }
 
@@ -66,7 +68,28 @@ async function recent() {
     return await db.all(`SELECT * FROM Questionnaires ORDER BY created DESC LIMIT 25`);
 }
 
+async function giveResponse(id, response) {
+
+    // Get a copy of the questionnaire
+    // This copy is needed to order the questions
+    const questionnaire = await getQuestionnaire(id);
+    console.log(questionnaire);
+
+    // Construct list of responses
+    // TODO Validation
+    const vals = [uuid(), null]; // init with the res id and user (null)
+    for(const key of questionnaire['questions'])
+        vals.push(response[key.id]);
+
+    console.log(`Vals: ${vals}`);
+
+    //                                          This disgusting bit makes n ? values
+    await db.run(`INSERT INTO res_${id} VALUES (${Array(vals.length).fill('?').join(', ')})`, vals);
+
+}
+
 module.exports.init = init;
 module.exports.register = register;
 module.exports.recent = recent;
-module.exports.getQuestionnaire = getQuestionnaire
+module.exports.getQuestionnaire = getQuestionnaire;
+module.exports.giveResponse = giveResponse;
