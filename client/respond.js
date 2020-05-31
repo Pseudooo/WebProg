@@ -1,5 +1,6 @@
 
 let questionnaire;
+let auth2;
 
 async function loadQuestions() {
 
@@ -19,6 +20,7 @@ async function loadQuestions() {
     // Iterate over questions
     for(const q of questionnaire.questions)
         qlist.append(buildQuestion(q));
+
 }
 
 function buildQuestion(q) {
@@ -88,24 +90,89 @@ async function submit() {
             for(const item of selected)
                 arr.unshift(item.label);
 
-            payload[q.id] = arr.join(',');
+            // Chose unique delimeter unlikely to be present in natural text
+            payload[q.id] = arr.join(';:-><');
         }
 
+    }
+
+    let headerVals = { 'Content-Type' : 'application/json' };
+    if(auth2.isSignedIn.get()) {
+        const token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
+        headerVals['Authorization'] = `Bearer ${token}`;
     }
 
     const id = window.location.pathname.split('/');
     const res = await fetch(`/answer/${id[id.length - 1]}`, {
         method: 'POST',
         body: JSON.stringify(payload),
-        headers: { 'Content-Type' : 'application/json' }
+        headers: headerVals
     });
 
     console.log(res.ok ? 'Done!' : 'Error!');
 
+}
+
+async function downloadResponses() {
+
+    const id = window.location.pathname.split('/');
+    const token = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().id_token;
+    const res = await fetch(`/api/responses/${id[id.length - 1]}`, {
+        method: 'GET',
+        headers: { 'Content-Type' : 'application/json' , 'Authorization' : `Bearer ${token}`}
+    });
+
+    let payload;
+    if(res.ok)
+        payload = await res.blob()
+    else {
+        console.log('Error');
+        return;
+    }
+
+    const a = document.createElement('a');
+    a.href = window.URL.createObjectURL(payload);;
+    a.download = "responses.json";
+    document.body.appendChild(a); // we need to append the element to the dom -> otherwise it will not work in firefox
+    a.click();
+    a.remove();
 
 }
 
+async function checkUserStatus() {
+    const path = window.location.pathname.split('/');
+    const id = path[path.length - 1];
+
+    const qlist = document.querySelector('#qlist');
+
+    const res = await fetch(`/api/owner/${id}`);
+
+    let owner;
+    if(res.ok) {
+        owner = (await res.json()).owner;
+        if(auth2.isSignedIn.get()) {
+            let user = auth2.currentUser.get().getBasicProfile().getId();
+
+            if(user === owner) {
+                // Inserting button for user to download responses
+                const btn = document.createElement('button');
+                btn.textContent = "Download Responses";
+                // btn.download = 'responses.json';
+                // btn.href = `/api/responses/${id}`;
+
+                btn.addEventListener('click', downloadResponses);
+                qlist.parentNode.insertBefore(btn, qlist);
+            }
+        }
+
+    }else {
+        console.log('error');
+    }
+}
+
 window.addEventListener('load', async () => {
+
+    auth2 = gapi.auth2.init();
 
     await loadQuestions();
     document.querySelector('#submit').addEventListener('click', submit);

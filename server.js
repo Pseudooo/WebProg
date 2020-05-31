@@ -18,7 +18,7 @@ app.use(express.static('client', { extensions: ['html'] }));
 */
 async function registerQuestionnaire(req, res) {
 
-    if(req.user === null) // User not logged in
+    if(req.user === undefined) // User not logged in
         res.status(401).send('Please log in!');
     
     // Indicate uploaded survey
@@ -39,7 +39,7 @@ async function openQuestionnaire(req, res) {
 async function giveResponse(req, res) {
     const id = req.params.id;
 
-    await qutil.giveResponse(id, req.body);
+    await qutil.giveResponse(id, req.body, req.user === undefined ? null : req.user.id);
 
     res.send('Done!');
 }
@@ -60,6 +60,39 @@ async function getQuestionnaire(req, res) {
 
 }
 
+async function getUserQuestionnaires(req, res) {
+
+    if(req.user === undefined) {
+        res.status(401).send('Please log in!');
+        return; // idk if return is needed
+    }
+
+    console.log(`Fetching for ${req.user.id}`);
+
+    const questionnaire = await qutil.getUserQuestionnaires(req.user.id);
+    res.json(questionnaire);
+
+}
+
+async function getOwner(req, res) {
+    const payload = await qutil.getQuestionnaireOwner(req.params.id);
+    res.json(payload);
+}
+
+async function downloadResponses(req, res) {
+
+    if(req.user === undefined) {
+        res.status(401).send('Please log in!');
+        return;
+    }
+
+    // TODO Verify user is the owner and not just logged in
+
+    const payload = JSON.stringify(await qutil.getResponses(req.params.id));
+    res.send(payload);
+
+}
+
 // Async wrapper
 function asyncWrap(f) {
     return (req, res, next) => {
@@ -72,7 +105,11 @@ app.get('/answer/:id', express.json(), asyncWrap(openQuestionnaire));
 app.post('/answer/:id', express.json(), asyncWrap(giveResponse))
 
 app.get('/api/get/:id', express.json(), asyncWrap(getQuestionnaire))
+app.get('/api/owner/:id', express.json(), asyncWrap(getOwner));
 app.get('/api/recents', asyncWrap(getRecents));
+app.get('/api/questionnaires', express.json(), asyncWrap(getUserQuestionnaires));
+
+app.get('/api/responses/:id', express.json(), asyncWrap(downloadResponses));
 
 app.post('/api/questionnaires', uploader.single('questionnaire'),
     express.json(), asyncWrap(registerQuestionnaire));

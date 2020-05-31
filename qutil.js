@@ -54,11 +54,29 @@ async function register(user, filename) {
 /**
     Function to get a questionnaire given its ID
 */
-async function getQuestionnaire(questionnaires) {
+async function getQuestionnaire(questionnaire) {
     let data;
-    if(fs.existsSync(`./questionnaires/${questionnaires}`))
-        data = JSON.parse(await readFile(`./questionnaires/${questionnaires}`));
+    if(fs.existsSync(`./questionnaires/${questionnaire}`))
+        data = JSON.parse(await readFile(`./questionnaires/${questionnaire}`));
+    data.id = questionnaire;
+
     return data;
+}
+
+async function getUserQuestionnaires(userID) {
+    const questionnaires = await db.all(`SELECT id FROM Questionnaires WHERE owner = ? ORDER BY created`, [userID]);
+
+    let toReturn = [];
+    for(const q of questionnaires)
+        toReturn.push(await getQuestionnaire(q.id));
+
+    return toReturn;
+
+}
+
+async function getQuestionnaireOwner(questionnaireID) {
+    const owner = await db.get('SELECT owner FROM Questionnaires WHERE id = ?', questionnaireID);
+    return owner;
 }
 
 /**
@@ -68,28 +86,33 @@ async function recent() {
     return await db.all(`SELECT * FROM Questionnaires ORDER BY created DESC LIMIT 25`);
 }
 
-async function giveResponse(id, response) {
+async function giveResponse(id, response, user) {
 
     // Get a copy of the questionnaire
     // This copy is needed to order the questions
     const questionnaire = await getQuestionnaire(id);
-    console.log(questionnaire);
 
     // Construct list of responses
     // TODO Validation
-    const vals = [uuid(), null]; // init with the res id and user (null)
+    const vals = [uuid(), user]; // init with the res id and user (null)
     for(const key of questionnaire['questions'])
         vals.push(response[key.id]);
-
-    console.log(`Vals: ${vals}`);
 
     //                                          This disgusting bit makes n ? values
     await db.run(`INSERT INTO res_${id} VALUES (${Array(vals.length).fill('?').join(', ')})`, vals);
 
 }
 
+async function getResponses(id) {
+    const data = await db.all(`SELECT * FROM res_${id}`);
+    return data;
+}   
+
 module.exports.init = init;
 module.exports.register = register;
 module.exports.recent = recent;
 module.exports.getQuestionnaire = getQuestionnaire;
 module.exports.giveResponse = giveResponse;
+module.exports.getUserQuestionnaires = getUserQuestionnaires;
+module.exports.getQuestionnaireOwner = getQuestionnaireOwner;
+module.exports.getResponses = getResponses;
