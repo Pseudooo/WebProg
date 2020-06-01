@@ -22,6 +22,8 @@ async function submit() {
     console.log(res.ok ? 'Sent!' : 'Error!');
     await loadRecents(); // Update recents board
 
+    el.selectfile.value = null;
+
 }
 
 async function loadRecents() {
@@ -35,11 +37,18 @@ async function loadRecents() {
 
     const ol = document.querySelector('#recents');
     ol.innerHTML = ''; // Clear list
-    console.log(recents);
     for(const q of recents) {
 
         const li = document.createElement('li');
-        li.innerHTML = `<a href='/answer/${q.id}'>${q.name}</a>`;
+        li.innerHTML = `<button href='/answer/${q.id}'>${q.name}</button>`;
+        ol.append(li);
+
+    }
+
+    if(recents === []) {
+
+        const li = document.createElement('li');
+        li.textContent = "There are no questionnaires yet!";
         ol.append(li);
 
     }

@@ -130,6 +130,7 @@ async function downloadResponses() {
         return;
     }
 
+    //Disgusting download solution
     const a = document.createElement('a');
     a.href = window.URL.createObjectURL(payload);;
     a.download = "responses.json";

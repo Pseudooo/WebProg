@@ -8,13 +8,20 @@
         <script src="https://apis.google.com/js/platform.js" async defer></script>
         <meta name="google-signin-client_id" content="125277199265-qqbdra5bp7gt38cnaeqp7rqek9gaqefq.apps.googleusercontent.com">
 
-        <script src='/respond.js'></script>
+        <link href='/css/nav.css' rel='stylesheet' type='text/css'>
+        <script src='/js/respond.js'></script>
 
     </head>
     <body>
 
-        <div class="g-signin2" data-onsuccess="checkUserStatus"></div><br>
-
+        <nav>
+            <ul>
+                <li class='current'><a href='/'>Home</a></li>
+                <li><a href='profile'>My Profile</a></li>
+                <li id='googlesignin'><div class="g-signin2" data-onsuccess="onSignIn"></div></li>
+            </ul>
+        </nav>
+        
         <ol id='qlist'></ol>
         <input type=submit id=submit value=Submit>
 

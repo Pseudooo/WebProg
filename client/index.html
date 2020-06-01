@@ -7,21 +7,37 @@
 
         <script src="https://apis.google.com/js/platform.js" async defer></script>
         <meta name="google-signin-client_id" content="125277199265-qqbdra5bp7gt38cnaeqp7rqek9gaqefq.apps.googleusercontent.com">
+
+        <link href='/css/nav.css' rel='stylesheet' type='text/css'>
+        <link href='/css/index.css' rel='stylesheet' type='text/css'>
+        
+        <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Ubuntu" />
     
-        <script src="index.js"></script>
+        <script src="/js/index.js"></script>
 
     </head>
 
     <body>
 
-        <header>
+        <nav>
+            <ul>
+                <li class='current'><a href='/'>Home</a></li>
+                <li><a href='profile'>My Profile</a></li>
+                <li id='googlesignin'><div class="g-signin2" data-onsuccess="onSignIn"></div></li>
+            </ul>
+        </nav>
+
+        <main>
+
+            <h3>Most Recent Questionnaires:</h3>
+            <ol id='recents'></ol>
+
+            <h3>Upload:</h3>
             <label id="questionnaire"><input id="select-file" type=file accept="application/JSON"></label>
             <input id=submit type=submit value=Send>
-        </header>
-        <br><div class="g-signin2" data-onsuccess="onSignIn"></div>
-        <br>
+        
 
-        <ol id="recents"></ol>
+        </main>
 
     </body>
 
