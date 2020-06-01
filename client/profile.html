@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+
+        <title>My Profile!</title>
+
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <meta name="google-signin-client_id" content="125277199265-qqbdra5bp7gt38cnaeqp7rqek9gaqefq.apps.googleusercontent.com">
+
+        <link href='/css/nav.css' rel='stylesheet' type='text/css'>
+        <script src="/js/profile.js"></script>
+
+    </head>
+    <body>
+
+        <nav>
+            <ul>
+                <li class='current'><a href='/'>Home</a></li>
+                <li><a href='profile'>My Profile</a></li>
+                <li id='googlesignin'><div class="g-signin2" data-onsuccess="loadQuestionnaires"></div></li>
+            </ul>
+        </nav>
+
+        <h1>My Questionnaires:</h1><br>
+        <ul id='questionnaires'></ul>
+
+    </body>
+
+</html>
