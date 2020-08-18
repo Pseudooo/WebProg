@@ -23,6 +23,7 @@ async function submit() {
     await loadRecents(); // Update recents board
 
     el.selectfile.value = null;
+    alert('File uploaded!');
 
 }
 
@@ -40,12 +41,12 @@ async function loadRecents() {
     for(const q of recents) {
 
         const li = document.createElement('li');
-        li.innerHTML = `<button href='/answer/${q.id}'>${q.name}</button>`;
+        li.innerHTML = `<a href='/answer/${q.id}'>${q.name}</a>`;
         ol.append(li);
 
     }
 
-    if(recents === []) {
+    if(ol.innerHTML === '') {
 
         const li = document.createElement('li');
         li.textContent = "There are no questionnaires yet!";

@@ -32,6 +32,12 @@ async function loadQuestionnaires() {
         list.append(li);
     }
 
+    if(list.innerHTML === '') {
+        const li = document.createElement('li');
+        li.textContent = "You have no Questionnaires!";
+        list.append(li);
+    }
+
     console.log('Loaded!');
 
 }

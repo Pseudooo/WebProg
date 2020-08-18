@@ -55,10 +55,10 @@ async function register(user, filename) {
     Function to get a questionnaire given its ID
 */
 async function getQuestionnaire(questionnaire) {
-    let data;
+    let data = {};
     if(fs.existsSync(`./questionnaires/${questionnaire}`))
         data = JSON.parse(await readFile(`./questionnaires/${questionnaire}`));
-    data.id = questionnaire;
+    data['id'] = questionnaire;
 
     return data;
 }

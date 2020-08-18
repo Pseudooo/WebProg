@@ -67,7 +67,7 @@ async function getUserQuestionnaires(req, res) {
         return; // idk if return is needed
     }
 
-    console.log(`Fetching for ${req.user.id}`);
+    console.log(`Fetching Questionnaires for ${req.user.displayName}`)
 
     const questionnaire = await qutil.getUserQuestionnaires(req.user.id);
     res.json(questionnaire);
@@ -86,7 +86,16 @@ async function downloadResponses(req, res) {
         return;
     }
 
-    // TODO Verify user is the owner and not just logged in
+    const owner = await qutil.getQuestionnaireOwner(req.params.id);
+
+    console.log(`Owner: ${owner.owner}`);
+    console.log(`Requestee: ${req.user.id}`)
+
+    if(owner.owner !== req.user.id) {
+        console.log("Disallowed");
+        res.status(401).send("You can't do that!");
+        return;
+    }
 
     const payload = JSON.stringify(await qutil.getResponses(req.params.id));
     res.send(payload);

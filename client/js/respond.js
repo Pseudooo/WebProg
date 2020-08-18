@@ -21,6 +21,8 @@ async function loadQuestions() {
     for(const q of questionnaire.questions)
         qlist.append(buildQuestion(q));
 
+    document.querySelector('#title').textContent = questionnaire.name;
+
 }
 
 function buildQuestion(q) {
@@ -81,17 +83,21 @@ async function submit() {
 
     for(const q of questionnaire.questions) {
 
-        let el;
         if(q.type === 'text' || q.type === 'number') {
-            payload[q.id] = document.querySelector(`#${q.id} > input`).value;
+            const item = document.querySelector(`#${q.id} > input`)
+            payload[q.id] = item.value;
+            item.value = "";
+
         }else if(q.type === 'multi-select' || q.type === 'single-select') {
             const selected = document.querySelectorAll(`#${q.id} > select option:checked`);
             const arr = [];
-            for(const item of selected)
+            for(const item of selected) {
                 arr.unshift(item.label);
+                item.checked = false;
+            }
 
             // Chose unique delimeter unlikely to be present in natural text
-            payload[q.id] = arr.join(';:-><');
+            payload[q.id] = arr.join('|');
         }
 
     }
@@ -109,6 +115,7 @@ async function submit() {
         headers: headerVals
     });
 
+    alert('You have submitted your response!');
     console.log(res.ok ? 'Done!' : 'Error!');
 
 }
@@ -130,7 +137,7 @@ async function downloadResponses() {
         return;
     }
 
-    //Disgusting download solution
+    // Disgusting download solution
     const a = document.createElement('a');
     a.href = window.URL.createObjectURL(payload);;
     a.download = "responses.json";
@@ -141,10 +148,11 @@ async function downloadResponses() {
 }
 
 async function checkUserStatus() {
+
     const path = window.location.pathname.split('/');
     const id = path[path.length - 1];
 
-    const qlist = document.querySelector('#qlist');
+    const ref = document.querySelector('#submit');
 
     const res = await fetch(`/api/owner/${id}`);
 
@@ -157,12 +165,13 @@ async function checkUserStatus() {
             if(user === owner) {
                 // Inserting button for user to download responses
                 const btn = document.createElement('button');
+                btn.id = 'dlresponses'
                 btn.textContent = "Download Responses";
-                // btn.download = 'responses.json';
-                // btn.href = `/api/responses/${id}`;
+                btn.download = 'responses.json';
+                btn.href = `/api/responses/${id}`;
 
                 btn.addEventListener('click', downloadResponses);
-                qlist.parentNode.insertBefore(btn, qlist);
+                ref.parentNode.insertBefore(btn, ref.nextSibling);
             }
         }
 
@@ -175,6 +184,7 @@ window.addEventListener('load', async () => {
 
     auth2 = gapi.auth2.init();
 
+    await checkUserStatus();
     await loadQuestions();
     document.querySelector('#submit').addEventListener('click', submit);
 
