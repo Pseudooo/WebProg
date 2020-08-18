@@ -1,0 +1,40 @@
+
+body {
+    margin: 0;
+    font-family: Ubuntu;
+    background-color: #4F4F51;
+}
+
+nav > ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #2C2b30;
+}
+
+nav > ul li {
+  float: left;
+}
+
+nav > ul li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+#googlesignin {
+    float: right;
+    padding: 0.2em;
+}
+
+nav > ul li a:hover {
+  background-color: #D6D6D6;
+  color: #F58F7C;
+}
+
+main {
+  box-sizing: border-box;
+}
